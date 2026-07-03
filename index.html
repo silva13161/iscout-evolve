@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>iScout Mapa</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+  <style>
+    #map { height: 90vh; width: 100%; }
+    .botoes { position: absolute; top: 10px; left: 10px; z-index: 1000; }
+    button { padding: 10px; margin: 5px; font-size: 16px; cursor: pointer; }
+  </style>
+  <script>
+    const supabaseUrl = 'https://wfdpumflozvlitqnzvur.supabase.co' 
+    const supabaseKey = 'sb_publishable_BJnj3LCo1PGaa8x6ZkUg6A_1DfnlC4Q'
+    const supabase = window.supabase.createClient(supabaseUrl, supabaseKey)
+
+    async function salvarPin(tipo) {
+      if (!navigator.geolocation) return alert('GPS desligado!')
+      
+      navigator.geolocation.getCurrentPosition(async (pos) => {
+        const { latitude: lat, longitude: lng } = pos.coords
+        const { error } = await supabase.from('pins').insert([{ tipo: tipo, lat: lat, lng: lng }])
+        if(error) alert('Erro: ' + error.message)
+        else alert(tipo + ' salvo na tua localização! ✅')
+      }, () => alert('Libera o GPS no navegador'))
+    }
+  </script>
+</head>
+<body>
+  <div class="botoes">
+    <button onclick="salvarPin('Monstro')" style="background:red;color:white;">👹 Monstro</button>
+    <button onclick="salvarPin('Piramide')" style="background:gold;">🔺 Pirâmide</button>
+  </div>
+  <div id="map"></div>
+  <script>
+    const map = L.map('map').setView([38.788, -9.102], 13); // Sacavém
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+  </script>
+</body>
+</html>
